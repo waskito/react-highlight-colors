@@ -1,12 +1,12 @@
-import React from "react";
-import PropTypes from "prop-types";
-import Popover from "react-text-selection-popover";
-import { Button, Grid } from "@material-ui/core";
-import ColorHelper from "./ColorHelper";
+import React from 'react'
+import PropTypes from 'prop-types'
+import Popover from 'react-text-selection-popover'
+import { Button, Grid } from '@mui/material'
+import ColorHelper from './ColorHelper'
 
 class Highlighter extends React.Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
       textList: this.props.import
         ? this.import(this.props.text)
@@ -16,45 +16,44 @@ class Highlighter extends React.Component {
               style: null,
               label: null,
               id: Date.now(),
-              ref: React.createRef()
-            }
+              ref: React.createRef(),
+            },
           ],
       colorOptions: ColorHelper.createColorObjects(
         this.props.colors,
-        this.props.cols
+        this.props.cols,
       ),
-      isOpen: false
-    };
+      isOpen: false,
+    }
 
-    require('react-dom');
-	window.React2 = require('react');
-	console.log(window.React1 === window.React2);
+    require('react-dom')
+    window.React2 = require('react')
   }
 
   // import existing highlighted text that has been exported
   import(text) {
-    let pattern = /\[([^[]*)\]\((.{4,17})\)/g;
-    let match = []; //text.match(/\[([^[]*)\]\((.{4,17})\)/g)
-    let matches = [];
+    let pattern = /\[([^[]*)\]\((.{4,17})\)/g
+    let match = [] //text.match(/\[([^[]*)\]\((.{4,17})\)/g)
+    let matches = []
 
     // extract colors and text
     do {
-      match = pattern.exec(text);
+      match = pattern.exec(text)
       if (match) {
-        let colorLabel = match[2].split(", ");
+        let colorLabel = match[2].split(', ')
         matches.push({
           fullLength: match[0].length,
           innerText: match[1],
           color: colorLabel[0],
           label: colorLabel.length === 2 ? colorLabel[1] : null,
-          index: match.index
-        });
+          index: match.index,
+        })
       }
-    } while (match);
+    } while (match)
 
-    let textList = [];
-    let start = 0;
-    let ids = Date.now();
+    let textList = []
+    let start = 0
+    let ids = Date.now()
 
     // construct textList
     for (const m of matches) {
@@ -65,8 +64,8 @@ class Highlighter extends React.Component {
           style: null,
           label: null,
           id: ids++,
-          ref: React.createRef()
-        });
+          ref: React.createRef(),
+        })
       }
 
       // add highlighted text
@@ -75,11 +74,11 @@ class Highlighter extends React.Component {
         style: ColorHelper.makeTextStyle(m.color),
         label: m.label,
         id: ids++,
-        ref: React.createRef()
-      });
+        ref: React.createRef(),
+      })
 
-      start = m.index + m.fullLength;
-      ids++;
+      start = m.index + m.fullLength
+      ids++
     }
 
     // get last piece of unhighlighted text
@@ -89,69 +88,69 @@ class Highlighter extends React.Component {
         style: null,
         label: null,
         id: ids,
-        ref: React.createRef()
-      });
+        ref: React.createRef(),
+      })
     }
 
-    return textList;
+    return textList
   }
 
   // export highlighted text to be stored
   export() {
-    let str = "";
+    let str = ''
     for (const text of this.state.textList) {
       if (text.style) {
         // check if text has labels
         if (text.label) {
           str +=
-            "[" +
+            '[' +
             text.text +
-            "](" +
+            '](' +
             text.style.backgroundColor +
-            ", " +
+            ', ' +
             text.label +
-            ")";
+            ')'
         } else {
-          str += "[" + text.text + "](" + text.style.backgroundColor + ")";
+          str += '[' + text.text + '](' + text.style.backgroundColor + ')'
         }
       } else {
-        str += text.text;
+        str += text.text
       }
     }
 
-    this.props.export(str);
+    this.props.export(str)
   }
 
   // highlight selected text
   highlightText(color, label) {
     // get selected text
-    const selection = window.getSelection();
+    const selection = window.getSelection()
 
     if (selection) {
       // check if selected unhighlighted and highlighted text
       if (
         selection.anchorNode.textContent !== selection.focusNode.textContent
       ) {
-        return;
+        return
       }
 
       // get span vars
-      let spanId = selection.getRangeAt(0).startContainer.parentNode.id;
-      let str = selection.toString();
-      let span = selection.anchorNode.textContent;
+      let spanId = selection.getRangeAt(0).startContainer.parentNode.id
+      let str = selection.toString()
+      let span = selection.anchorNode.textContent
 
       // get start and end of selection
-      let start = Math.min(selection.anchorOffset, selection.focusOffset);
-      let end = start + str.length;
+      let start = Math.min(selection.anchorOffset, selection.focusOffset)
+      let end = start + str.length
 
       // get index of span which selection is in
-      let textList = this.state.textList;
-      var index = null;
+      let textList = this.state.textList
+      var index = null
 
       for (var i = 0; i < textList.length; i++) {
         if (textList[i].id == spanId) {
-          index = i;
-          break;
+          index = i
+          break
         }
       }
 
@@ -159,14 +158,14 @@ class Highlighter extends React.Component {
       if (index !== null) {
         // check if whole span is selected, if so change the background
         if (span === str) {
-          textList[index].style = ColorHelper.makeTextStyle(color);
+          textList[index].style = ColorHelper.makeTextStyle(color)
         } else {
-          let del = 1;
-          let ids = Date.now();
+          let del = 1
+          let ids = Date.now()
 
           // grab outer span style and label
-          let outerStyle = textList[index].style;
-          let outerLabel = textList[index].label;
+          let outerStyle = textList[index].style
+          let outerLabel = textList[index].label
 
           // check if str is ends at the end of span
           if (end !== span.length) {
@@ -176,10 +175,10 @@ class Highlighter extends React.Component {
               style: outerStyle,
               label: outerLabel,
               id: ids,
-              ref: label
-            });
+              ref: label,
+            })
 
-            del = 0;
+            del = 0
           }
 
           // insert highlighted span
@@ -188,8 +187,8 @@ class Highlighter extends React.Component {
             style: ColorHelper.makeTextStyle(color),
             label: label,
             id: ++ids,
-            ref: ""
-          });
+            ref: '',
+          })
 
           // check if str starts at beginning of span
           if (start !== 0) {
@@ -199,32 +198,32 @@ class Highlighter extends React.Component {
               style: outerStyle,
               label: outerLabel,
               id: ++ids,
-              ref: ""
-            });
+              ref: '',
+            })
           }
         }
 
         // update state
         this.setState({
           textList: textList,
-          isOpen: false
-        });
+          isOpen: false,
+        })
 
         // export text
         if (this.props.export) {
-          this.export();
+          this.export()
         }
       }
     }
   }
 
   render() {
-    const selectableRef = React.createRef();
+    const selectableRef = React.createRef()
 
     return (
       <div style={this.props.style}>
         <span ref={selectableRef}>
-          {this.state.textList.map(text => {
+          {this.state.textList.map((text) => {
             return (
               <span
                 id={text.id}
@@ -234,20 +233,20 @@ class Highlighter extends React.Component {
               >
                 {text.text}
               </span>
-            );
+            )
           })}
         </span>
-		    <Popover
-        selectionRef={selectableRef}
-        isOpen={this.state.isOpen}
-        onTextSelect={() => this.setState({ isOpen: true })}
-        onTextUnselect={() => this.setState({ isOpen: false })}
+        <Popover
+          selectionRef={selectableRef}
+          isOpen={this.state.isOpen}
+          onTextSelect={() => this.setState({ isOpen: true })}
+          onTextUnselect={() => this.setState({ isOpen: false })}
         >
           <Grid container alignContent="space-around" direction="column">
-            {this.state.colorOptions.map(colorRow => (
-              <Grid container key={"cont_" + colorRow[0].color}>
-                {colorRow.map(color => (
-                  <Grid item xs key={"item_" + color.color}>
+            {this.state.colorOptions.map((colorRow) => (
+              <Grid container key={'cont_' + colorRow[0].color}>
+                {colorRow.map((color) => (
+                  <Grid item xs key={'item_' + color.color}>
                     <Button
                       fullWidth
                       size="small"
@@ -256,7 +255,7 @@ class Highlighter extends React.Component {
                       onClick={this.highlightText.bind(
                         this,
                         color.color,
-                        color.text
+                        color.text,
                       )}
                       style={color.style}
                     >
@@ -267,9 +266,9 @@ class Highlighter extends React.Component {
               </Grid>
             ))}
           </Grid>
-	      </Popover>
+        </Popover>
       </div>
-    );
+    )
   }
 }
 
@@ -291,32 +290,32 @@ Highlighter.propTypes = {
   colors: PropTypes.array,
   export: PropTypes.func,
   cols: PropTypes.number,
-  import: PropTypes.bool
-};
+  import: PropTypes.bool,
+}
 
 Highlighter.defaultProps = {
   colors: [
-    "#B80000",
-    "#DB3E00",
-    "#FCCB00",
-    "#008B02",
-    "#006B76",
-    "#1273DE",
-    "#004DCF",
-    "#5300EB",
-    "#EB9694",
-    "#FAD0C3",
-    "#FEF3BD",
-    "#C1E1C5",
-    "#BEDADC",
-    "#C4DEF6",
-    "#BED3F3",
-    "#D4C4FB"
+    '#B80000',
+    '#DB3E00',
+    '#FCCB00',
+    '#008B02',
+    '#006B76',
+    '#1273DE',
+    '#004DCF',
+    '#5300EB',
+    '#EB9694',
+    '#FAD0C3',
+    '#FEF3BD',
+    '#C1E1C5',
+    '#BEDADC',
+    '#C4DEF6',
+    '#BED3F3',
+    '#D4C4FB',
   ],
   style: null,
   export: null,
   cols: 8,
-  import: false
-};
+  import: false,
+}
 
-export default Highlighter;
+export default Highlighter
